@@ -53,12 +53,13 @@ void setup() {
 
 
 
-gait_phase(int time, int leg) {
+gait_phase(int time, int leg, int mode=0) {
   //we will set the neutral stright back position as the zero position
+  // need to edit this to accomodate several more gaits. 
   float position = time * 90.0; // this is a placeholder val
   position -= 45.0; // ??? is this correct to center the zero?
 
-  // TODO might need to fmod this by 360.
+  // TODO might need to fmod this by 360 - actually probably not if we make sure the dead zone is not near our area of operation. 
   if (leg == 0) {
     position = position+zeroing_offset[0];
   }
@@ -91,8 +92,7 @@ void loop() {
   float time = fmod((float)elapsed, period) / (float)period;
   
   //LEG_GAIT
-  //TODO: the gait for the legs
-  //leg_gait();
+  leg_gait();
  
   //WHEEL GAIT
   //TDOD: clean this up once we figure out which wheel is which. 
