@@ -74,28 +74,28 @@ void leg_gait() { // TODO: update this gait function to support our project's ga
   float time = fmod((float)elapsed, period) / (float)period; // from 0 to 1
 
   // first leg
-  gaitPhase(time, 0);
+  gait_phase(time, 0);
 
   float time2 = time + 0.5; // phase shift :TODO
   if (time2 > 1.0) {
     time2 -= 1.0;
   }
 
-  gaitPhase(time2, 1);  //other leg
-
- 
+  gait_phase(time2, 1);  //other leg
 }
 
 
 void loop() {
 
-  // gait();
   unsigned long elapsed = millis() - start;
   float time = fmod((float)elapsed, period) / (float)period;
   
- //TODO: the gait for the legs
+  //LEG_GAIT
+  //TODO: the gait for the legs
+  //leg_gait();
  
- //TDOD: clean this up once we figure out which wheel is which. 
+  //WHEEL GAIT
+  //TDOD: clean this up once we figure out which wheel is which. 
   dxl.setGoalVelocity(IDs[2], CW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
   dxl.setGoalVelocity(IDs[3], CCW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
   dxl.setGoalVelocity(IDs[4], CCW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
