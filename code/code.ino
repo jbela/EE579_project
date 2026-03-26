@@ -12,19 +12,17 @@
 
 const float DXL_PROTOCOL_VERSION = 2.0;
 
-uint8_t IDs[]={2,3,101,7};  //enlarge this array to control additional motors
-int Leg_zeroing_offset[]={60,240,150,150}; 
+uint8_t IDs[]={2,3,101,7,2,3}; // first 2 are back leg, the rest are wheels
+int zeroing_offset[]={60,240,150,60,60}; 
+bool in_dead_zone[]={0,0,0,0,0,0}; //0=not, 1=in // TODO: make sure this is updates for number of motots
 
+//for the wheels
+const int CCW_VEL = 500; // (max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
+const int CW_VEL = 1500; // (max CW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
 
+//for the legs
 unsigned long start = 0.0;
-const unsigned long period = 4000; //period of gait
-
-const float L1 = 6.5; //leg lengths
-const float L2 = 7.3;
-
-// for 0-100 (part1)
-const float t_0 = 0;
-const float t_100 = 100;
+const unsigned long period = 2000; //period of gait
 
 DynamixelShield dxl;
 
@@ -39,92 +37,52 @@ void setup() {
   // Set Port Protocol Version. This has to match with DYNAMIXEL protocol version.
   dxl.setPortProtocolVersion(DXL_PROTOCOL_VERSION);
 
-  for(int i=0;i<4;i++){
+  for(int i=0;i < sizeof(IDs); i++){
     dxl.ping(IDs[i]);
     dxl.torqueOff(IDs[i]);
-    dxl.setOperatingMode(IDs[i], OP_POSITION);
+    if(i < 2) {
+      dxl.setOperatingMode(IDs[i], OP_POSITION);
+    }
+    else {
+      dxl.setOperatingMode(IDs[i], OP_VELOCITY);
+    }
     dxl.torqueOn(IDs[i]);
   }
   start = millis();
 }
 
-
-void inverse(float x, float y, float &t1, float &t2) {
-  float r2 = x*x + y*y;
-  float in = (r2 - L1*L1 - L2*L2) / (2*L1*L2);
-  in = constrain(in, -1.0, 1.0);
-  t2 = acos(in);
-  t1 = atan2(y,x) - atan2(L2*sin(t2), L1+L2*cos(t2));
-}
-
-
-void move(float x, float y, int leg = 0) {
-  int hipIndex  = leg * 2;
-  int kneeIndex = leg * 2 + 1;
-  float t1, t2, hip_deg, knee_deg;
-  inverse(x,y,t1,t2);
-
-  if (leg == 0) {
-    hip_deg  = Leg_zeroing_offset[hipIndex] - (t1 * 180.0 / PI);
-    knee_deg = Leg_zeroing_offset[kneeIndex] + (t2 * 180.0 / PI);
-  }
-  if (leg == 1) { 
-    hip_deg  = Leg_zeroing_offset[hipIndex] + (t1 * 180.0 / PI);
-    knee_deg = Leg_zeroing_offset[kneeIndex] - (t2 * 180.0 / PI); 
-  }
   dxl.setGoalPosition(IDs[hipIndex],  hip_deg,  UNIT_DEGREE);
   dxl.setGoalPosition(IDs[kneeIndex], knee_deg, UNIT_DEGREE);
-}
 
+gait_phase(int time, int leg) {
+  //we will set the neutral stright back position as the zero position
+  float position = time * 90.0; // this is a placeholder val
+  position -= 45.0; // ??? is this correct to center the zero?
 
-void forward(float t1, float t2, float &x, float &y) {
-  x = L1*cos(t1) + L2*cos(t1 + t2);
-  y = L1*sin(t1) + L2*sin(t1 + t2);
-}
-
-
-// this is currently the gait for lab 2.
-void gaitPhase(float time, int leg) { // TODO: updat this gait function to support our project's gait. 
-
-  float R  = 2.0;
-  float cx = 2.0; //center x&y
-  float cy = 10.0;
-
-  float x, y;
-
-  //basically same as semicircle.
-  if (time < 0.5) {
-    float t = time / 0.5; 
-    float angle = PI * t;
-
-    x = cx + R * cos(angle);
-    y = cy - R * sin(angle); 
+  // TODO might need to fmod this by 360.
+  if (leg == 0) {
+    position = position+zeroing_offset[0];
   }
   else {
-    float t = (time - 0.5) /0.5;
-    x = (2*R*t);
-    y = cy;
+    position = position -zeroing_offset[1];
   }
 
-  move(x, y, leg);
 }
 
-
-void gait() { // TODO: update this gait function to support our project's gait.
+void leg_gait() { // TODO: update this gait function to support our project's gait.
   unsigned long elapsed = millis() - start;
-  float time = fmod((float)elapsed, period) / (float)period;
+  float time = fmod((float)elapsed, period) / (float)period; // from 0 to 1
 
   // first leg
   gaitPhase(time, 0);
 
-  float time2 = time + 0.5; // phase shift
+  float time2 = time + 0.5; // phase shift :TODO
   if (time2 > 1.0) {
     time2 -= 1.0;
   }
 
   gaitPhase(time2, 1);  //other leg
 
-  //add in rotating the front wheels.
  
 }
 
@@ -132,5 +90,20 @@ void gait() { // TODO: update this gait function to support our project's gait.
 void loop() {
 
   // gait();
-
+  unsigned long elapsed = millis() - start;
+  float time = fmod((float)elapsed, period) / (float)period;
+  
+ //TODO: the gait for the legs
+ 
+ //TDOD: clean this up once we figure out which wheel is which. 
+  dxl.setGoalVelocity(IDs[2], CW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
+  dxl.setGoalVelocity(IDs[3], CCW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
+  dxl.setGoalVelocity(IDs[4], CCW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
 }
+
+/*
+- how to measure "speed"
+- what is considered "better performance"
+- what params are we varying
+- 
+*/
