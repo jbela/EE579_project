@@ -51,8 +51,7 @@ void setup() {
   start = millis();
 }
 
-  dxl.setGoalPosition(IDs[hipIndex],  hip_deg,  UNIT_DEGREE);
-  dxl.setGoalPosition(IDs[kneeIndex], knee_deg, UNIT_DEGREE);
+
 
 gait_phase(int time, int leg) {
   //we will set the neutral stright back position as the zero position
@@ -66,6 +65,7 @@ gait_phase(int time, int leg) {
   else {
     position = position -zeroing_offset[1];
   }
+  dxl.setGoalPosition(IDs[leg], position, UNIT_DEGREE);
 
 }
 
