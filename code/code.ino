@@ -55,17 +55,8 @@ void setup() {
 
 gait_phase(int time, int leg, int mode=0) {
   //we will set the neutral stright back position as the zero position
-  // need to edit this to accomodate several more gaits. 
-  float position = time * 90.0; // this is a placeholder val
-  position -= 45.0; // ??? is this correct to center the zero?
-
-  // TODO might need to fmod this by 360 - actually probably not if we make sure the dead zone is not near our area of operation. 
-  if (leg == 0) {
-    position = position+zeroing_offset[0];
-  }
-  else {
-    position = position -zeroing_offset[1];
-  }
+  // TODO: need to edit this to accomodate several more gaits. 
+  float position = 30* sin(time * 2* PI);
   dxl.setGoalPosition(IDs[leg], position, UNIT_DEGREE);
 
 }
@@ -106,4 +97,13 @@ void loop() {
 - what is considered "better performance"
 - what params are we varying
 - 
+
+
+1: 60, 
+2: 60,
+3: -, 
+4: -, 
+5: -, 
+6: -,
+
 */
