@@ -12,8 +12,8 @@
 
 const float DXL_PROTOCOL_VERSION = 2.0;
 
-uint8_t IDs[]={2,3,101,7,2,3}; // first 2 are back leg, the rest are wheels
-int zeroing_offset[]={60,240,150,60,60}; 
+uint8_t IDs[]={0,1,2,3,4,5,6}; // first 2 are back leg, the rest are wheels
+int zeroing_offset[]={150,133,150,60,60}; 
 bool in_dead_zone[]={0,0,0,0,0,0}; //0=not, 1=in // TODO: make sure this is updates for number of motots
 
 //for the wheels
