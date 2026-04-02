@@ -83,13 +83,14 @@ void loop() {
   float time = fmod((float)elapsed, period) / (float)period;
   
   //LEG_GAIT
-  leg_gait();
+  // leg_gait();
  
   //WHEEL GAIT
   //TDOD: clean this up once we figure out which wheel is which. 
   dxl.setGoalVelocity(IDs[2], CW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
   dxl.setGoalVelocity(IDs[3], CCW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
-  dxl.setGoalVelocity(IDs[4], CCW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
+  dxl.setGoalVelocity(IDs[4], CW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)  dxl.setGoalVelocity(IDs[4], CCW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
+  dxl.setGoalVelocity(IDs[5], CCW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)  dxl.setGoalVelocity(IDs[5], CW_VEL); //(max CCW) 1023 <-- 0 (stop) 1024 --> 2047 (max CW)
 }
 
 /*
